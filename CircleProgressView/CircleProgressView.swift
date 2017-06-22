@@ -36,11 +36,18 @@ import UIKit
         didSet { setNeedsDisplay() }
     }
 
-    @IBInspectable open var roundedCap: Bool = false {
+    @IBInspectable open var startRoundedCap: Bool = false {
         didSet {
             setNeedsDisplay()
         }
     }
+    
+    @IBInspectable open var endRoundedCap: Bool = false {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
     @IBInspectable open var clockwise: Bool = true {
         didSet { setNeedsDisplay() }
     }
@@ -54,6 +61,10 @@ import UIKit
     }
 
     @IBInspectable open var trackBackgroundColor: UIColor = UIColor.gray {
+        didSet { setNeedsDisplay() }
+    }
+    
+    @IBInspectable open var trackBackgroundImage: UIImage? {
         didSet { setNeedsDisplay() }
     }
 
@@ -116,10 +127,19 @@ import UIKit
 
         // background Drawing
         let circlePath = UIBezierPath(ovalIn: CGRect(x: innerRect.minX, y: innerRect.minY, width: innerRect.width, height: innerRect.height))
-        if trackBackgroundColor != UIColor.clear {
+        
+        if let trackBackgroundImage = trackBackgroundImage {
+            circlePath.reversing().addClip()
+            trackBackgroundImage.draw(in: innerRect)
+        } else {
             trackBackgroundColor.setFill()
             circlePath.fill();
         }
+        
+//        if trackBackgroundColor != UIColor.clear {
+//            trackBackgroundColor.setFill()
+//            circlePath.fill();
+//        }
         if trackBorderWidth > 0 {
             circlePath.lineWidth = trackBorderWidth
             trackBorderColor.setStroke()
@@ -137,14 +157,14 @@ import UIKit
       
         progressPath.addArc(withCenter: center, radius:radius, startAngle:startAngle, endAngle:endAngle, clockwise:!clockwise)
         let r = radius - trackWidth * 0.5
-        if roundedCap {
+        if endRoundedCap {
             let capCenter = CGPoint(x: center.x + r * cos(endAngle), y: center.y + r * sin(endAngle))
         
             progressPath.addArc(withCenter: capCenter, radius: trackWidth * 0.5, startAngle: endAngle, endAngle: endAngle + CGFloat(Double.pi), clockwise: !clockwise)
         }
         progressPath.addArc(withCenter: center, radius:radius-trackWidth, startAngle:endAngle, endAngle:startAngle, clockwise:clockwise)
         
-        if roundedCap {
+        if startRoundedCap {
         let capCenter = CGPoint(x: center.x + r * cos(startAngle), y: center.y + r * sin(startAngle))
         
             progressPath.addArc(withCenter: capCenter, radius: trackWidth * 0.5, startAngle: startAngle, endAngle: startAngle + CGFloat(Double.pi), clockwise: clockwise)
